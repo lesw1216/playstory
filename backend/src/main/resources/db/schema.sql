@@ -13,10 +13,10 @@ create table if not exists excel_export_jobs
 (
     id              integer auto_increment primary key,
     requested_at    timestamp not null,
-    started_at      timestamp not null,
-    ended_at        timestamp not null,
+    started_at      timestamp,
+    ended_at        timestamp,
     status          varchar(10) not null,
-    file_path       varchar(200) not null
+    file_path       varchar(200)
     );
 
 create index idx_requested_at on excel_export_jobs (requested_at);
