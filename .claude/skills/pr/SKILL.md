@@ -16,11 +16,11 @@ git branch --show-current
 
 ### 2. 보호 브랜치 확인
 
-현재 브랜치가 `dev` 또는 `staging` 이면 PR 생성을 중단하고 아래를 안내한다.
+현재 브랜치가 `main` 이면 PR 생성을 중단하고 아래를 안내한다.
 
 ```
-dev / staging 브랜치에서는 직접 PR을 생성할 수 없습니다.
-작업 브랜치 → staging, staging → dev 방향으로만 PR을 생성합니다.
+main 브랜치에서는 직접 PR을 생성할 수 없습니다.
+작업 브랜치(feat/fix/...) → main 방향으로만 PR을 생성합니다.
 ```
 
 ### 3. 원격 브랜치 push 확인
@@ -41,17 +41,17 @@ git push -u origin {현재 브랜치명}
 PR 제목과 본문 작성을 위해 커밋 내역을 확인한다.
 
 ```bash
-git log staging..HEAD --oneline
-git diff staging...HEAD --stat
+git log main..HEAD --oneline
+git diff main...HEAD --stat
 ```
 
 ### 5. PR 생성
 
-브랜치 전략에 따라 base 브랜치는 반드시 `staging` 으로 설정한다.
+브랜치 전략에 따라 base 브랜치는 반드시 `main` 으로 설정한다.
 
 ```bash
 gh pr create \
-  --base staging \
+  --base main \
   --title "{타입}: {작업 제목}" \
   --body "{본문}"
 ```
