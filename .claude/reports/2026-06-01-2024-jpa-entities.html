@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>schema.sql 기반 JPA 엔티티 생성</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"',
+                   '"Apple SD Gothic Neo"', '"Malgun Gothic"', 'system-ui', 'sans-serif'],
+            mono: ['ui-monospace', '"SF Mono"', 'Menlo', 'Consolas', 'monospace'],
+          },
+          colors: {
+            canvas: '#fafafa', card: '#ffffff', ink: '#1f2328', muted: '#656d76',
+            link: '#0969da', line: '#d0d7de', ok: '#1a7f37', warn: '#9a6700',
+            danger: '#cf222e', codebg: '#f6f8fa',
+            'd-canvas': '#0d1117', 'd-card': '#161b22', 'd-ink': '#e6edf3',
+            'd-muted': '#8b949e', 'd-link': '#58a6ff', 'd-line': '#30363d',
+          },
+        },
+      },
+    }
+  </script>
+</head>
+<body class="bg-canvas text-ink font-sans dark:bg-d-canvas dark:text-d-ink">
+  <main class="max-w-[880px] mx-auto px-8 py-12">
+
+    <header class="mb-6">
+      <h1 class="text-[28px] font-semibold">schema.sql 기반 JPA 엔티티 생성</h1>
+      <div class="font-mono text-sm text-muted dark:text-d-muted">2026-06-01 20:24</div>
+      <p class="text-muted dark:text-d-muted mt-2">
+        <code class="font-mono">orders</code>, <code class="font-mono">excel_export_jobs</code> 두 테이블에 대응하는 JPA 엔티티와 상태 enum을 생성했다.
+      </p>
+    </header>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">작업 요청 요약</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">backend/src/main/resources/db/schema.sql</code> 의 테이블 2개를 보고 엔티티 생성.</li>
+        <li>기존 백엔드 규칙(dto-layer 패키지 구조, coding-convention의 enum·Rich Domain) 준수.</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">사전 계획 · 핵심 결정</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">ddl-auto: validate</code> → 스키마와 정확히 일치하도록 타입·nullable·길이 매핑.</li>
+        <li><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">id integer</code> → 엔티티 <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">Integer</code> + <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">IDENTITY</code> (Long=bigint 불일치 방지).</li>
+        <li>클래스↔테이블명 불일치 → <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">@Table(name=...)</code> 명시 (<code class="font-mono">orders</code> / <code class="font-mono">excel_export_jobs</code>).</li>
+        <li><strong>orders.status</strong>: <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">OrderStatus</code> enum + <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">@Enumerated(STRING)</code>, Converter 없음 → 저장값은 대문자 enum 이름(추후 더미데이터도 대문자로 생성 전제).</li>
+        <li><strong>BaseEntity 미사용</strong>: 두 테이블에 audit 컬럼 없음 + validate 모드라 추가 컬럼 금지.</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">생성 파일</h2>
+      <table class="w-full border-collapse text-sm">
+        <thead>
+          <tr>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">파일</th>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">유형</th>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">api/order/model/Order.java</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="font-mono">orders</code> 매핑. id/userName/productName/category/amount/status/orderDate. 행위 메서드 없음(read-only 원본)</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">api/order/model/OrderStatus.java</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top">CONFIRMED / CANCELLED / PENDING</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">api/exceljob/model/ExcelJob.java</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="font-mono">excel_export_jobs</code> 매핑. 상태 전이 메서드 <code class="font-mono">pending()</code>·<code class="font-mono">startProcessing()</code>·<code class="font-mono">complete()</code>·<code class="font-mono">fail()</code> 포함</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">api/exceljob/model/ExcelJobStatus.java</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top">PENDING / PROCESSING / DONE / FAILED</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="text-muted dark:text-d-muted mt-3 text-sm">패키지 base: <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">com.playstory.backend.api.{domain}.model</code></p>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">검증 결과</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">./gradlew compileJava</code> → <span class="text-ok font-semibold">BUILD SUCCESSFUL</span> (컴파일 통과).</li>
+        <li>스키마 정합성(<code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">validate</code>)은 MySQL 기동 + <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">bootRun</code> 시 확인됨 — 이번엔 컴파일까지만 수행.</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">알려진 제약 · follow-up</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><strong>스키마 nullable 정합화(해결됨)</strong>: <code class="font-mono">excel_export_jobs</code> 의 <code class="font-mono">started_at</code>·<code class="font-mono">ended_at</code>·<code class="font-mono">file_path</code> 를 <code class="font-mono">NULL 허용</code>으로 조정해, PENDING은 시작/종료/파일이 없고 PROCESSING은 종료/파일이 없는 비동기 흐름이 가능해졌다. 엔티티의 nullable 매핑과도 일치.</li>
+        <li><strong>orders.status 대소문자</strong>: Converter 없는 enum이므로 DB 저장값은 대문자. 더미데이터 생성 시 대문자로 맞춰야 조회가 깨지지 않음. 소문자 저장이 필수라면 AttributeConverter 추가 필요.</li>
+        <li>Repository / Service / DTO 는 이번 범위 밖(엔티티만 생성).</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>
