@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>.claude 설정 모노레포 분리 + 도메인 재작성</title>
+<style>
+  :root {
+    --bg: #fafafa; --card: #ffffff; --text: #1f2328; --muted: #656d76;
+    --accent: #0969da; --border: #d0d7de; --ok: #1a7f37; --warn: #9a6700;
+    --danger: #cf222e; --code-bg: #f6f8fa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117; --card: #161b22; --text: #e6edf3; --muted: #8b949e;
+      --accent: #58a6ff; --border: #30363d; --ok: #3fb950; --warn: #d29922;
+      --danger: #f85149; --code-bg: #161b22;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo",
+                 "Malgun Gothic", system-ui, sans-serif;
+    font-size: 16px; line-height: 1.7;
+  }
+  main { max-width: 880px; margin: 0 auto; padding: 48px 32px; }
+  header.top { margin-bottom: 24px; }
+  h1 { font-size: 28px; font-weight: 600; margin: 0 0 8px; }
+  h2 { font-size: 20px; font-weight: 600; margin: 0 0 16px; }
+  h3 { font-size: 16px; font-weight: 600; margin: 20px 0 8px; }
+  .ts { color: var(--muted); font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 14px; }
+  .lead { color: var(--muted); margin-top: 8px; }
+  section {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 24px; margin-bottom: 16px;
+  }
+  code, pre {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+  pre {
+    background: var(--code-bg); padding: 12px 16px; border-radius: 6px;
+    overflow-x: auto; font-size: 13px; line-height: 1.5;
+  }
+  pre code { background: none; padding: 0; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  ul { margin: 8px 0; padding-left: 20px; }
+  li { margin: 4px 0; }
+  a { color: var(--accent); }
+  .badge {
+    padding: 2px 8px; border-radius: 4px; font-size: 12px;
+    font-family: ui-monospace, monospace; display: inline-block;
+  }
+  .b-add { color: var(--ok); border: 1px solid var(--ok); }
+  .b-mod { color: var(--accent); border: 1px solid var(--accent); }
+  .b-del { color: var(--danger); border: 1px solid var(--danger); }
+  .ok { color: var(--ok); font-weight: 600; }
+</style>
+</head>
+<body>
+<main>
+  <header class="top">
+    <h1>.claude 설정 모노레포 분리 + 도메인 재작성</h1>
+    <div class="ts">2026-06-01 17:05</div>
+    <p class="lead">이전 프로젝트(Picket) 백엔드 전용 설정을 공통/백엔드/프론트로 분리하고, 모든 예시를 PlayStory 도메인으로 교체했다.</p>
+  </header>
+
+  <section>
+    <h2>작업 요청 요약</h2>
+    <ul>
+      <li>루트 <code>.claude/</code> 에 Picket 프로젝트의 백엔드 전용 skills/rules가 그대로 있었음.</li>
+      <li>공통(git/process)은 루트 <code>.claude/</code>, 백엔드 전용은 <code>backend/.claude/</code>, 프론트 전용은 <code>frontend/.claude/</code> 로 분리.</li>
+      <li>각 md의 예시를 이전 프로젝트 용어/도메인에서 현재 프로젝트(설계.md 기준)로 재작성.</li>
+      <li>프론트는 설정이 없어 프로젝트 분석 후 신규 작성.</li>
+      <li>커밋은 하지 않음.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>사전 계획</h2>
+    <p>공식 문서로 nested <code>.claude</code> 로딩 메커니즘을 먼저 검증한 뒤 레이아웃 확정:</p>
+    <ul>
+      <li><code>backend/.claude/CLAUDE.md</code>·<code>frontend/.claude/CLAUDE.md</code> 는 해당 서브트리 접근 시 on-demand 자동 로드.</li>
+      <li><code>.claude/rules/*.md</code> 는 import 없이 instructions로 자동 로드(루트=시작 시, 서브트리=on-demand).</li>
+      <li>skills는 nested <code>.claude/skills/</code> 에서 on-demand 발견, 동명은 가장 가까운 scope 우선 → 서브프로젝트별 <code>done</code> 공존 가능.</li>
+    </ul>
+    <p>도메인 매핑: <code>com.picketlogia.picket → com.playstory.backend</code>,
+       product/reservation/seat/seller → <code>excelJob / order / errorLog</code>,
+       상태 → <code>PENDING/PROCESSING/DONE/FAILED</code>, CORS 운영도메인·UserType 제거(설계에 없음).</p>
+    <p>프론트 테스트: vitest 미설치 → 테스트 rule/skill 생략(사용자 확인).</p>
+  </section>
+
+  <section>
+    <h2>변경 파일 목록</h2>
+    <h3>루트 <code>.claude/</code> (공통)</h3>
+    <table>
+      <thead><tr><th>경로</th><th>유형</th><th>요약</th></tr></thead>
+      <tbody>
+        <tr><td><code>CLAUDE.md</code></td><td><span class="badge b-mod">~</span></td><td>모노레포 개요로 축약, 스택 상세는 서브프로젝트로 위임</td></tr>
+        <tr><td><code>rules/branch-convention.md</code></td><td><span class="badge b-mod">~</span></td><td>예시 브랜치명 PlayStory로</td></tr>
+        <tr><td><code>rules/task-driven-development.md</code></td><td><span class="badge b-mod">~</span></td><td>예시 작업명 PlayStory로</td></tr>
+        <tr><td><code>skills/task/SKILL.md</code></td><td><span class="badge b-mod">~</span></td><td>도메인 중립화, 서브프로젝트 /test·/done 안내</td></tr>
+        <tr><td><code>skills/pr/SKILL.md</code></td><td><span class="badge b-mod">=</span></td><td>도메인 용어 없어 유지(이동만)</td></tr>
+        <tr><td><code>report-style.md</code></td><td><span class="badge b-mod">~</span></td><td><code>skills/</code> 아래 → 루트로 이동</td></tr>
+        <tr><td><code>rules/{coding-convention,dto-create,dto-layer,env,error-handling,openapi,testing}.md</code></td><td><span class="badge b-del">-</span></td><td>backend로 이동(원본 삭제)</td></tr>
+        <tr><td><code>skills/{test,done}/</code></td><td><span class="badge b-del">-</span></td><td>backend로 이동(원본 삭제)</td></tr>
+      </tbody>
+    </table>
+
+    <h3><code>backend/.claude/</code> (신규 트리)</h3>
+    <table>
+      <thead><tr><th>경로</th><th>유형</th><th>요약</th></tr></thead>
+      <tbody>
+        <tr><td><code>CLAUDE.md</code></td><td><span class="badge b-add">+</span></td><td>백엔드 스택·명령어·비동기 job 흐름·도메인</td></tr>
+        <tr><td><code>rules/coding-convention.md</code></td><td><span class="badge b-add">+</span></td><td>패키지/도메인 재작성, CORS 운영도메인·UserType 제거</td></tr>
+        <tr><td><code>rules/dto-create.md</code> · <code>dto-layer.md</code></td><td><span class="badge b-add">+</span></td><td>ExcelJob/Order DTO 예시</td></tr>
+        <tr><td><code>rules/error-handling.md</code></td><td><span class="badge b-add">+</span></td><td>BaseResponseStatus 코드 ExcelJob/Order 계열</td></tr>
+        <tr><td><code>rules/env.md</code></td><td><span class="badge b-add">+</span></td><td>MySQL, DB명 playstory</td></tr>
+        <tr><td><code>rules/openapi.md</code></td><td><span class="badge b-add">+</span></td><td>PlayStory API, /api/excel-jobs 경로</td></tr>
+        <tr><td><code>rules/testing.md</code></td><td><span class="badge b-add">+</span></td><td>ExcelJobService 예시, com.playstory.backend 경로</td></tr>
+        <tr><td><code>skills/test/SKILL.md</code> · <code>done/SKILL.md</code></td><td><span class="badge b-add">+</span></td><td>gradle 기반, 경로/예시 재작성</td></tr>
+      </tbody>
+    </table>
+
+    <h3><code>frontend/.claude/</code> (신규 작성)</h3>
+    <table>
+      <thead><tr><th>경로</th><th>유형</th><th>요약</th></tr></thead>
+      <tbody>
+        <tr><td><code>CLAUDE.md</code></td><td><span class="badge b-add">+</span></td><td>Vue3/TS/Vite/Pinia 스택, polling 화면 흐름</td></tr>
+        <tr><td><code>rules/coding-convention.md</code></td><td><span class="badge b-add">+</span></td><td>SFC script setup, 네이밍, 디렉터리, @ alias</td></tr>
+        <tr><td><code>rules/api-and-state.md</code></td><td><span class="badge b-add">+</span></td><td>native fetch, BaseResponse&lt;T&gt; 타입, job store, polling 규칙</td></tr>
+        <tr><td><code>skills/done/SKILL.md</code></td><td><span class="badge b-add">+</span></td><td>type-check → lint → build (test 단계 없음)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>검증 결과</h2>
+    <h3>구조 확인</h3>
+    <p><code>find .claude backend/.claude frontend/.claude -type f</code> → 루트 6개 · 백엔드 9개 · 프론트 4개, 의도와 일치.</p>
+    <h3>잔존 구도메인 용어 스캔</h3>
+    <pre><code>grep -rin "picketlogia|picket|reservation|seat|seller|공연|예매|좌석|판매자" \
+  .claude backend/.claude frontend/.claude
+=> (none)</code></pre>
+    <p class="ok">✓ 잔존 0건. ✓ 각 <code>@rules/...</code> 참조는 동일 트리 rules 디렉터리 내에서 해소됨.</p>
+  </section>
+
+  <section>
+    <h2>알려진 제약 · follow-up</h2>
+    <ul>
+      <li>코드 변경은 없음(설정/문서만) → 빌드·테스트 미수행. 커밋도 하지 않음(사용자 지시).</li>
+      <li>프론트엔드 테스트: vitest 미설치로 <code>/test</code> rule/skill 생략. 도입 시 별도 협의 후 추가 필요.</li>
+      <li>백엔드 예시의 패키지 구조(<code>api/exceljob/...</code>)·엔티티 메서드는 <b>제안 컨벤션</b>이며 실제 구현 코드는 아직 없음. 구현 시 이 규칙을 기준으로 작성.</li>
+      <li>Excel 생성 라이브러리는 <code>build.gradle</code> 미포함 — 추가 전 협의 필요(기존 주의사항 유지).</li>
+      <li><code>docs/api/openapi.yaml</code> 은 아직 미생성. 첫 엔드포인트 구현 시 <code>/open-api</code> 또는 <code>@rules/openapi.md</code> 기준으로 작성.</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

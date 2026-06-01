@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tailwind 도입에 따른 .claude 문서 + 보고서 스타일 갱신</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"',
+                   '"Apple SD Gothic Neo"', '"Malgun Gothic"', 'system-ui', 'sans-serif'],
+            mono: ['ui-monospace', '"SF Mono"', 'Menlo', 'Consolas', 'monospace'],
+          },
+          colors: {
+            canvas: '#fafafa', card: '#ffffff', ink: '#1f2328', muted: '#656d76',
+            link: '#0969da', line: '#d0d7de', ok: '#1a7f37', warn: '#9a6700',
+            danger: '#cf222e', codebg: '#f6f8fa',
+            'd-canvas': '#0d1117', 'd-card': '#161b22', 'd-ink': '#e6edf3',
+            'd-muted': '#8b949e', 'd-link': '#58a6ff', 'd-line': '#30363d',
+          },
+        },
+      },
+    }
+  </script>
+</head>
+<body class="bg-canvas text-ink font-sans dark:bg-d-canvas dark:text-d-ink">
+  <main class="max-w-[880px] mx-auto px-8 py-12">
+
+    <header class="mb-6">
+      <h1 class="text-[28px] font-semibold">Tailwind 도입에 따른 .claude 문서 + 보고서 스타일 갱신</h1>
+      <div class="font-mono text-sm text-muted dark:text-d-muted">2026-06-01 17:19</div>
+      <p class="text-muted dark:text-d-muted mt-2">
+        프론트엔드 Tailwind CSS v4 도입에 맞춰 frontend .claude 규칙을 utility-first로 갱신하고, 작업 완료 보고서 양식을 Tailwind 기반으로 재작성했다. (이 보고서가 새 양식의 첫 적용 예시)
+      </p>
+    </header>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">작업 요청 요약</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>프론트엔드 CSS 프레임워크로 <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">Tailwind CSS</code> 도입 예정.</li>
+        <li>도입으로 인해 수정이 필요한 <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">.claude</code> 관련 파일 분석 및 갱신.</li>
+        <li>작업 완료 보고서를 <strong>Tailwind를 사용한 HTML</strong>로 작성할 수 있도록 양식 변경.</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">사전 계획 (실행 전)</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>영향 범위 파악: frontend는 Tailwind 미설치(스캐폴드 상태), <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">~/.claude/report-style.md</code>(global) 부재 → 보고서 스타일은 프로젝트 파일이 담당.</li>
+        <li>결정(사용자 확인): 범위는 <strong>.claude 문서 + 보고서만</strong>(실제 npm 설치 제외), <strong>Tailwind v4</strong>, 보고서는 <strong>Play CDN</strong>으로 렌더.</li>
+        <li>대상 파일: frontend <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">coding-convention.md</code> · <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">CLAUDE.md</code>, 루트 <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">report-style.md</code> · <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">CLAUDE.md</code>.</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">변경 파일 목록</h2>
+      <table class="w-full border-collapse text-sm">
+        <thead>
+          <tr>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">파일 경로</th>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">유형</th>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">요약</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">frontend/.claude/rules/coding-convention.md</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-link border-link">~</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top">컴포넌트 스타일 utility-first 전환, "스타일링 — Tailwind CSS v4" 섹션 신설, 디렉터리에 main.css 진입점 명시</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">frontend/.claude/CLAUDE.md</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-link border-link">~</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top">스택 라인에 Tailwind CSS v4 추가, 아키텍처·규칙 항목에 스타일링 반영</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">.claude/report-style.md</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-link border-link">~</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top">Tailwind Play CDN + 인라인 config 기반으로 전면 재작성(색 토큰·다크모드·카드·배지·코드블록을 utility class로)</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">.claude/CLAUDE.md</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-link border-link">~</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top">frontend 스택에 Tailwind 추가, 보고서 스타일이 Tailwind 기반임을 명시</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">.claude/reports/2026-06-01-1719-tailwind-config-update.html</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top">이 보고서 (새 Tailwind 양식의 실사용 예시)</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">분석 결과 — 변경 불필요 판정</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">frontend/.claude/rules/api-and-state.md</code> — API·상태 관리 전용, 스타일 무관 → 변경 없음.</li>
+        <li>backend 트리 전체, 공통 skills(<code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">pr</code>/<code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">task</code>)·rules → Tailwind와 무관 → 변경 없음.</li>
+        <li>frontend <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">done</code> 스킬 — type-check/lint/build 흐름은 Tailwind 도입과 무관 → 변경 없음.</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">검증 결과</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>코드 변경 없음(문서/스타일 규칙만) → 빌드·테스트 불필요.</li>
+        <li>이 보고서를 브라우저로 열어 Tailwind CDN 적용·다크모드(<code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">prefers-color-scheme</code>)·레이아웃 렌더 확인 권장(인터넷 필요).</li>
+        <li>커밋은 진행하지 않음(사용자 지시 기조 유지).</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">알려진 제약 · follow-up</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>실제 Tailwind 설치는 미수행. 진행 시: <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">npm i -D tailwindcss @tailwindcss/vite</code> → <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">vite.config.ts</code> 플러그인 등록 → <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">src/assets/main.css</code> 에 <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">@import "tailwindcss";</code>. 라이브러리 추가 협의 절차 적용.</li>
+        <li>보고서는 Tailwind Play CDN을 사용 → <strong>오프라인에서는 스타일이 적용되지 않음</strong>. 완전 self-contained가 필요해지면 빌드 단계에서 정적 CSS를 인라인하는 방식으로 전환 검토.</li>
+        <li>class 자동 정렬용 <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">prettier-plugin-tailwindcss</code> 도입은 별도 협의(라이브러리 추가).</li>
+        <li>기존 <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">src/assets/main.css</code>·<code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">base.css</code> 의 Vue 스캐폴드 스타일은 Tailwind 설치 시 정리 대상.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>
