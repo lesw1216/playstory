@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>엑셀 생성 비동기 기능 구현</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"',
+                   '"Apple SD Gothic Neo"', '"Malgun Gothic"', 'system-ui', 'sans-serif'],
+            mono: ['ui-monospace', '"SF Mono"', 'Menlo', 'Consolas', 'monospace'],
+          },
+          colors: {
+            canvas: '#fafafa', card: '#ffffff', ink: '#1f2328', muted: '#656d76',
+            link: '#0969da', line: '#d0d7de', ok: '#1a7f37', warn: '#9a6700',
+            danger: '#cf222e', codebg: '#f6f8fa',
+            'd-canvas': '#0d1117', 'd-card': '#161b22', 'd-ink': '#e6edf3',
+            'd-muted': '#8b949e', 'd-link': '#58a6ff', 'd-line': '#30363d',
+          },
+        },
+      },
+    }
+  </script>
+</head>
+<body class="bg-canvas text-ink font-sans dark:bg-d-canvas dark:text-d-ink">
+  <main class="max-w-[880px] mx-auto px-8 py-12">
+
+    <header class="mb-6">
+      <h1 class="text-[28px] font-semibold">엑셀 생성 비동기 기능 구현</h1>
+      <div class="font-mono text-sm text-muted dark:text-d-muted">2026-06-02 16:28</div>
+      <p class="text-muted dark:text-d-muted mt-2">
+        <code class="font-mono">POST /api/excel-jobs</code> 로 job을 요청하면 즉시 PENDING 응답 후 백그라운드에서 orders(10만건)를 .xlsx로 생성한다.
+      </p>
+    </header>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">결정 사항</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>엑셀 라이브러리: <strong>Apache POI <code class="font-mono">poi-ooxml:5.3.0</code></strong> — SXSSF 스트리밍(.xlsx).</li>
+        <li>비동기: <strong><code class="font-mono">@Async</code> + 전용 <code class="font-mono">ThreadPoolTaskExecutor</code></strong>.</li>
+        <li>실패 원인: 로그만(미영속) — status=FAILED만 DB 반영. 스키마 변경 없음.</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">비동기 흐름 (race 회피)</h2>
+      <p class="text-muted dark:text-d-muted mb-2 text-sm">commit-before-async race를 <code class="font-mono">@TransactionalEventListener(AFTER_COMMIT)</code> + <code class="font-mono">@Async</code> 로 차단:</p>
+      <pre class="bg-codebg dark:bg-d-card rounded-md p-4 overflow-x-auto text-sm font-mono">create() @Transactional
+  save(ExcelJob.pending())            // PENDING insert
+  publishEvent(ExcelJobRequestedEvent(jobId))
+  return PENDING                      // 즉시 응답
+        │ 트랜잭션 commit
+        ▼ AFTER_COMMIT
+ExcelGenerator.onExcelJobRequested()  @Async("excelExecutor")
+  markProcessing(jobId)               // 짧은 @Transactional
+  file = orderExcelWriter.write(jobId)// 트랜잭션 밖, 청크 스트리밍
+  성공 → markDone(jobId, file)
+  예외 → log.error + markFailed(jobId)</pre>
+      <p class="text-muted dark:text-d-muted mt-2 text-sm">AFTER_COMMIT이라 비동기 스레드는 항상 트랜잭션 commit된 job을 조회. <code class="font-mono">ExcelJobService</code>는 이벤트 publisher만 의존 → 의존성 사이클 없음.</p>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">생성 · 수정 파일</h2>
+      <table class="w-full border-collapse text-sm">
+        <thead>
+          <tr>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">파일</th>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">유형</th>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">build.gradle</code></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-warn border-warn">~</span></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top">poi-ooxml:5.3.0 추가</td></tr>
+          <tr><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">config/AsyncConfig.java</code></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top">@EnableAsync, excelExecutor(core1/max2/queue50/CallerRuns)</td></tr>
+          <tr><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">application.yaml</code></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-warn border-warn">~</span></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top">excel.output-dir (EXCEL_OUTPUT_DIR override)</td></tr>
+          <tr><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">order/repository/OrderRepository.java</code></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top">keyset 페이징 findByIdGreaterThanOrderByIdAsc</td></tr>
+          <tr><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">exceljob/event/ExcelJobRequestedEvent.java</code></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top">record(jobId)</td></tr>
+          <tr><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">exceljob/service/ExcelJobService.java</code></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-warn border-warn">~</span></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top">create + markProcessing/markDone/markFailed (각 @Transactional)</td></tr>
+          <tr><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">exceljob/service/ExcelGenerator.java</code></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top">@Async @TransactionalEventListener(AFTER_COMMIT) 워커</td></tr>
+          <tr><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">exceljob/excel/OrderExcelWriter.java</code></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top">SXSSF(window100) 스트리밍, keyset 5,000행 청크</td></tr>
+          <tr><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">exceljob/controller/ExcelJobController.java</code></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-warn border-warn">~</span></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top">@PostMapping create()</td></tr>
+          <tr><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">docs/api/openapi.yaml</code></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-warn border-warn">~</span></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top">POST /api/excel-jobs 추가</td></tr>
+          <tr><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">docs/tasks/엑셀-생성.md</code></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td><td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top">기록용 task 파일(플랜)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">대용량(10만건) 전략</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>읽기: keyset 페이징(<code class="font-mono">id &gt; lastId LIMIT 5000</code>) 청크 반복 — 전체 List 미적재, deep-offset 비용 없음.</li>
+        <li>쓰기: SXSSF window=100 → 메모리 100행만 유지, 초과분 temp flush. close()가 temp 정리(<code class="font-mono">dispose()</code> deprecated라 미사용).</li>
+        <li>트랜잭션: 파일 생성 동안 장기 트랜잭션 없음. 상태 전이만 짧은 @Transactional.</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">검증</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">./gradlew compileJava</code> → <span class="text-ok font-semibold">BUILD SUCCESSFUL</span> (deprecation 경고 0).</li>
+        <li>openapi.yaml YAML 파싱 OK (get + post).</li>
+        <li>런타임(백엔드 재기동 + MySQL/seed 필요)은 사용자 확인:
+          <pre class="bg-codebg dark:bg-d-card rounded-md p-3 mt-1 overflow-x-auto text-xs font-mono">curl -X POST http://localhost:8080/api/excel-jobs        # PENDING 즉시
+curl "http://localhost:8080/api/excel-jobs?page=0&size=10" # PROCESSING→DONE
+ls -lh ./data/excel/                                       # orders-*.xlsx</pre>
+        </li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">알려진 제약 · follow-up</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><strong>테스트 미작성</strong>: Service/Controller 테스트(testing.md) 후속 — 비동기/POI는 슬라이스·mock 분리 필요.</li>
+        <li>다운로드(<code class="font-mono">GET /{jobId}/download</code>)는 별도 작업. 프론트 "엑셀 생성 요청" 버튼은 이 POST로 동작.</li>
+        <li>실패 원인은 로그만(결정) — DB 영속(error_log)은 후속 여지.</li>
+        <li>커밋하지 않음(미요청).</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>
