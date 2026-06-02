@@ -3,7 +3,7 @@ spring:
     name: backend
 
   datasource:
-    url: jdbc:mysql://localhost:3306/playstory?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: ${DB_URL:jdbc:mysql://localhost:3306/playstory?serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
     username: playstory_app
     password: qwer1234
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -16,8 +16,6 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
-
-    show-sql: true
 
   sql:
     init:
