@@ -13,4 +13,10 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  server: {
+    // dev: same-origin 유지 — /api 요청을 로컬 백엔드로 프록시(prod의 nginx 리버스 프록시 대응)
+    proxy: {
+      '/api': 'http://localhost:8080',
+    },
+  },
 })
