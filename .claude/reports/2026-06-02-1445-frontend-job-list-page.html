@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>프론트엔드 데이터 요청 목록 페이지</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"',
+                   '"Apple SD Gothic Neo"', '"Malgun Gothic"', 'system-ui', 'sans-serif'],
+            mono: ['ui-monospace', '"SF Mono"', 'Menlo', 'Consolas', 'monospace'],
+          },
+          colors: {
+            canvas: '#fafafa', card: '#ffffff', ink: '#1f2328', muted: '#656d76',
+            link: '#0969da', line: '#d0d7de', ok: '#1a7f37', warn: '#9a6700',
+            danger: '#cf222e', codebg: '#f6f8fa',
+            'd-canvas': '#0d1117', 'd-card': '#161b22', 'd-ink': '#e6edf3',
+            'd-muted': '#8b949e', 'd-link': '#58a6ff', 'd-line': '#30363d',
+          },
+        },
+      },
+    }
+  </script>
+</head>
+<body class="bg-canvas text-ink font-sans dark:bg-d-canvas dark:text-d-ink">
+  <main class="max-w-[880px] mx-auto px-8 py-12">
+
+    <header class="mb-6">
+      <h1 class="text-[28px] font-semibold">프론트엔드 — 데이터 요청 목록 페이지</h1>
+      <div class="font-mono text-sm text-muted dark:text-d-muted">2026-06-02 14:45</div>
+      <p class="text-muted dark:text-d-muted mt-2">
+        엑셀 job 목록을 최신순 페이징으로 보여주는 화면. 페이지네이션을 뷰포트 하단에 고정하고, 엑셀 생성 요청 버튼을 헤더에 배치했다.
+      </p>
+    </header>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">작업 요청 요약</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><code class="font-mono">GET /api/excel-jobs</code> 기반 데이터 요청 목록 페이지 구현.</li>
+        <li><strong>페이지네이션 하단 고정</strong>: 행 수와 무관하게 항상 뷰포트 맨 아래 — 1개여도 바로 아래 붙지 않도록.</li>
+        <li>범위: 목록 + 하단 고정 페이지네이션 + 엑셀 생성 요청 버튼(레이아웃 확인용). polling·상태배지·다운로드 제외.</li>
+        <li>커밋하지 않음. 화면 육안 확인은 사용자가 직접 진행.</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">생성 · 수정 파일</h2>
+      <table class="w-full border-collapse text-sm">
+        <thead>
+          <tr>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">파일</th>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">유형</th>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">types/api.ts · types/excelJob.ts</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="font-mono">BaseResponse&lt;T&gt;</code>, <code class="font-mono">ExcelJob</code>/<code class="font-mono">ExcelJobPage</code>/<code class="font-mono">ExcelJobStatus</code> — 백엔드 DTO와 필드·enum 일치</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">api/client.ts · api/excelJob.ts</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top">axios 인스턴스 + <code class="font-mono">apiGet</code>/<code class="font-mono">apiPost</code>(isSuccess 검사), <code class="font-mono">fetchExcelJobs</code>/<code class="font-mono">createExcelJob</code></td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">utils/datetime.ts</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="font-mono">formatDateTime</code> — null·미시작 시 <code class="font-mono">-</code></td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">stores/excelJob.ts</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top">Pinia store — jobs·페이징 메타·loading·error, <code class="font-mono">loadJobs(page)</code>/<code class="font-mono">requestExcel()</code></td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">components/ExcelJobTable.vue</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top">테이블: job_id/요청일시/시작/완료/상태/파일경로. status plain text, null은 <code class="font-mono">-</code></td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">components/JobPagination.vue</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top">0-based 입력 → 1-based 표기. 윈도우 5개 + prev/next, 양끝 disabled</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">views/JobListView.vue</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="font-mono">h-screen flex-col</code> 레이아웃 + 헤더(생성 버튼) + 로딩/에러/빈 상태</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">router/index.ts</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-warn border-warn">~</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="font-mono">/</code> → <code class="font-mono">JobListView</code>(name <code class="font-mono">job-list</code>)</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">HomeView.vue · stores/counter.ts · ExampleComponent.vue</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-danger border-danger">−</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top">Vite 기본 스캐폴드 제거(미사용)</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">하단 고정 레이아웃</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>루트 <code class="font-mono">div.flex.h-screen.flex-col</code> → 헤더(<code class="font-mono">shrink-0</code>) / 본문(<code class="font-mono">flex-1 overflow-auto</code>) / 푸터(<code class="font-mono">shrink-0 border-t</code>).</li>
+        <li>본문이 <code class="font-mono">flex-1</code> 로 남는 공간을 흡수 → 행이 1개든 10개든 페이지네이션은 항상 뷰포트 맨 아래.</li>
+        <li>로딩·에러·빈 목록 상태에서도 푸터 위치 동일. <code class="font-mono">totalPages</code> 0이면 페이지 버튼 비활성.</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">검증 결과</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">npm run type-check</code> (vue-tsc) → <span class="text-ok font-semibold">통과</span>.</li>
+        <li><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">npm run lint</code> (oxlint + eslint) → <span class="text-ok font-semibold">0 errors</span>.</li>
+        <li>화면 육안 확인은 사용자가 직접 진행(요청에 따라 내 검증 범위 제외).</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">알려진 제약 · follow-up</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><strong>엑셀 생성 요청 버튼</strong>: UI·배선만 우선 배치. 백엔드 <code class="font-mono">POST /api/excel-jobs</code> 미구현이라 클릭 시 에러 상태 표시 — 엔드포인트 완성 후 정상화.</li>
+        <li><strong>다운로드 버튼</strong>: 보류(백엔드 <code class="font-mono">download</code> 구현 후).</li>
+        <li><strong>polling·상태 배지</strong>: 범위 밖 — 후속.</li>
+        <li>커밋하지 않음.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>
