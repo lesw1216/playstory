@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>엑셀 job 최신순 목록 조회 — Controller·DTO 레이어</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"',
+                   '"Apple SD Gothic Neo"', '"Malgun Gothic"', 'system-ui', 'sans-serif'],
+            mono: ['ui-monospace', '"SF Mono"', 'Menlo', 'Consolas', 'monospace'],
+          },
+          colors: {
+            canvas: '#fafafa', card: '#ffffff', ink: '#1f2328', muted: '#656d76',
+            link: '#0969da', line: '#d0d7de', ok: '#1a7f37', warn: '#9a6700',
+            danger: '#cf222e', codebg: '#f6f8fa',
+            'd-canvas': '#0d1117', 'd-card': '#161b22', 'd-ink': '#e6edf3',
+            'd-muted': '#8b949e', 'd-link': '#58a6ff', 'd-line': '#30363d',
+          },
+        },
+      },
+    }
+  </script>
+</head>
+<body class="bg-canvas text-ink font-sans dark:bg-d-canvas dark:text-d-ink">
+  <main class="max-w-[880px] mx-auto px-8 py-12">
+
+    <header class="mb-6">
+      <h1 class="text-[28px] font-semibold">엑셀 job 최신순 목록 조회 — Controller·DTO 레이어</h1>
+      <div class="font-mono text-sm text-muted dark:text-d-muted">2026-06-02 02:17</div>
+      <p class="text-muted dark:text-d-muted mt-2">
+        <code class="font-mono">GET /api/excel-jobs?page&size</code> 엔드포인트의 Controller·DTO·주변 인프라를 작성했다. Service 본문(비즈니스 로직)은 사용자 작성 예정.
+      </p>
+    </header>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">작업 요청 요약</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>설계.md의 "최신순 요청 작업 목록 조회" 기능 구현.</li>
+        <li><strong>비즈니스 로직(Service 본문)은 사용자</strong>가 작성 — 내 역할은 Controller + 레이어 간 DTO 변환 + 필요한 DTO + 컴파일에 필요한 주변 인프라.</li>
+        <li>커밋하지 않음(사용자 검토 후 별도 진행).</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">생성 파일</h2>
+      <table class="w-full border-collapse text-sm">
+        <thead>
+          <tr>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">파일</th>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">유형</th>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">common/BaseResponse.java</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top">공통 응답 래퍼. <code class="font-mono">@JsonProperty("isSuccess")</code> 로 JSON 키 고정</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">common/BaseResponseStatus.java</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top">SUCCESS / INVALID_INPUT / INTERNAL_SERVER_ERROR / EXCEL_JOB_NOT_FOUND</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">common/BaseException.java</code> · <code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">GlobalExceptionHandler.java</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top">예외 → BaseResponse 변환 (error-handling.md)</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">api/exceljob/controller/ExcelJobController.java</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="font-mono">GET /api/excel-jobs</code> — page/size → Pageable → service → BaseResponse 래핑</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">api/exceljob/repository/ExcelJobRepository.java</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="font-mono">findAllByOrderByRequestedAtDesc(Pageable)</code> (최신순 파생 쿼리)</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">api/exceljob/service/ExcelJobService.java</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-warn border-warn">~</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><strong>스텁</strong>: <code class="font-mono">findAllLatest(Pageable)</code> 시그니처 + TODO + 변환 예시 주석. 본문은 사용자 작성</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">dto/result/ExcelJobResult.java</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top">엔티티→Result 변환 <code class="font-mono">from(ExcelJob)</code></td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">dto/response/ExcelJobResponse.java</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top">Result→Response 변환 <code class="font-mono">from(ExcelJobResult)</code> (status는 <code class="font-mono">.name()</code>)</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">dto/response/ExcelJobPageResponse.java</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top">content + page/size/totalElements/totalPages/last. <code class="font-mono">from(Page&lt;ExcelJobResponse&gt;)</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">사용자가 작성할 Service 본문 (참고)</h2>
+      <p class="text-muted dark:text-d-muted mb-2 text-sm">변환 메서드는 모두 준비됨. 아래 한 줄 흐름으로 조합하면 된다(스텁 주석에도 동일하게 기재):</p>
+      <pre class="bg-codebg dark:bg-d-card rounded-md p-4 overflow-x-auto text-sm font-mono">return ExcelJobPageResponse.from(
+    excelJobRepository.findAllByOrderByRequestedAtDesc(pageable)
+        .map(job -&gt; ExcelJobResponse.from(ExcelJobResult.from(job))));</pre>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">검증 결과</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">./gradlew compileJava</code> → <span class="text-ok font-semibold">BUILD SUCCESSFUL</span> (Service 스텁은 <code class="font-mono">throw</code>로 컴파일 통과).</li>
+        <li>실제 목록 동작은 사용자가 Service 본문 작성 + MySQL 기동 후 <code class="font-mono">bootRun</code> 으로 확인.</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">알려진 제약 · follow-up</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><strong>Service 본문 미구현</strong>: 현재 <code class="font-mono">UnsupportedOperationException</code> throw. 사용자가 비즈니스 로직 작성 필요.</li>
+        <li><strong>Query DTO 미생성</strong>: 필터 없는 페이징이라 <code class="font-mono">Pageable</code> 로 전달(dto-create의 "단순 조회는 Query 생략 가능" 적용). 필터가 생기면 <code class="font-mono">ExcelJobSearchQuery</code> 추가 권장.</li>
+        <li><code class="font-mono">ExcelJobPageResponse.from</code> 은 입력 파라미터로만 Spring <code class="font-mono">Page</code> 를 받고, DTO 상태에는 framework 타입을 보관하지 않음.</li>
+        <li>다른 엔드포인트(POST 생성, 단건 조회, 다운로드)는 이번 범위 밖.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

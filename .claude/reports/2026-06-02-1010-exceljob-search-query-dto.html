@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Controller→Service 경계 Query DTO 교정</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"',
+                   '"Apple SD Gothic Neo"', '"Malgun Gothic"', 'system-ui', 'sans-serif'],
+            mono: ['ui-monospace', '"SF Mono"', 'Menlo', 'Consolas', 'monospace'],
+          },
+          colors: {
+            canvas: '#fafafa', card: '#ffffff', ink: '#1f2328', muted: '#656d76',
+            link: '#0969da', line: '#d0d7de', ok: '#1a7f37', warn: '#9a6700',
+            danger: '#cf222e', codebg: '#f6f8fa',
+            'd-canvas': '#0d1117', 'd-card': '#161b22', 'd-ink': '#e6edf3',
+            'd-muted': '#8b949e', 'd-link': '#58a6ff', 'd-line': '#30363d',
+          },
+        },
+      },
+    }
+  </script>
+</head>
+<body class="bg-canvas text-ink font-sans dark:bg-d-canvas dark:text-d-ink">
+  <main class="max-w-[880px] mx-auto px-8 py-12">
+
+    <header class="mb-6">
+      <h1 class="text-[28px] font-semibold">Controller→Service 경계 Query DTO 교정</h1>
+      <div class="font-mono text-sm text-muted dark:text-d-muted">2026-06-02 10:10</div>
+      <p class="text-muted dark:text-d-muted mt-2">
+        <code class="font-mono">GET /api/excel-jobs</code> 의 Controller→Service 전달 객체가 DTO 컨벤션을 위반(raw <code class="font-mono">Pageable</code> 노출)하던 것을 <code class="font-mono">ExcelJobSearchQuery</code> 로 교정했다.
+      </p>
+    </header>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">작업 요청 요약</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>Controller→Service 파라미터가 우리 DTO 컨벤션과 어긋난다는 지적 → 분석 후 교정.</li>
+        <li>커밋하지 않음(사용자 검토 후 별도 진행).</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">위반 분석 (사전 진단)</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><strong>네이밍</strong>: <code class="font-mono">dto-layer.md</code> 상 조회 요청은 <code class="font-mono">**Query</code> 로 Service에 전달해야 하나, 변환 DTO 없이 raw <code class="font-mono">Pageable</code> 을 넘기고 있었다.</li>
+        <li><strong>레이어 독립성</strong>: Spring Data <code class="font-mono">Pageable</code>/<code class="font-mono">PageRequest</code> 가 Service 시그니처에 노출 — "각 DTO는 해당 레이어 안에서만 생성·소비" 위반.</li>
+        <li><strong>예외 조항 오적용</strong>: "단순 단건 조회(ID 기반)는 Query 생략 가능"은 단건 ID 전용. 페이징 목록에는 해당 없음.</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">변경 파일</h2>
+      <table class="w-full border-collapse text-sm">
+        <thead>
+          <tr>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">파일</th>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">유형</th>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">dto/query/ExcelJobSearchQuery.java</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="font-mono">@Getter @Builder</code> 불변. 필드 <code class="font-mono">page</code>/<code class="font-mono">size</code>. 추후 필터 확장 여지</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">controller/ExcelJobController.java</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-warn border-warn">~</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="font-mono">@RequestParam(defaultValue)</code> 로 개별 수신 후 Query 빌드. <code class="font-mono">PageRequest</code>/<code class="font-mono">Pageable</code> import 제거</td>
+          </tr>
+          <tr>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">service/ExcelJobService.java</code></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-warn border-warn">~</span></td>
+            <td class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top">시그니처 <code class="font-mono">findAllLatest(ExcelJobSearchQuery)</code>. <code class="font-mono">PageRequest.of</code> 를 Service 내부로 이동. Javadoc 갱신</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">교정 후 흐름</h2>
+      <pre class="bg-codebg dark:bg-d-card rounded-md p-4 overflow-x-auto text-sm font-mono">// Controller — 개별 파라미터 수신 + Query 빌드
+ExcelJobSearchQuery query = ExcelJobSearchQuery.builder()
+    .page(page).size(size).build();
+service.findAllLatest(query);
+
+// Service — framework 타입은 여기서만 생성
+Pageable pageable = PageRequest.of(query.getPage(), query.getSize());
+Page&lt;ExcelJob&gt; jobs = repo.findAllByOrderByRequestedAtDesc(pageable);
+return ExcelJobPageResponse.from(
+    jobs.map(j -&gt; ExcelJobResponse.from(ExcelJobResult.from(j))));</pre>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">결정 근거 (수신 방식)</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><strong>객체 바인딩 미채택</strong>: Query 객체에 직접 바인딩 + 디폴트는 mutable(@Setter) 필요 → Query 불변 규칙 위반. 불변 생성자 바인딩은 디폴트 부여 불가(<code class="font-mono">int</code> 0 강제).</li>
+        <li><strong>채택</strong>: <code class="font-mono">@RequestParam(defaultValue)</code> 개별 수신 → 디폴트가 가장 깔끔, Query 불변 유지(<code class="font-mono">dto-create.md</code> "Request 없는 쿼리 파라미터 조회는 Controller에서 Query 빌드" 패턴과 일치).</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">검증 결과</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">./gradlew compileJava</code> → <span class="text-ok font-semibold">BUILD SUCCESSFUL</span>.</li>
+        <li>런타임 목록 동작은 MySQL 기동 + <code class="font-mono">bootRun</code> 으로 별도 확인 필요.</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">알려진 제약 · follow-up</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><code class="font-mono">Repository.findAllByOrderByRequestedAtDesc(Pageable)</code> 는 Spring Data 메서드라 <code class="font-mono">Pageable</code> 유지(Repository 계층이 Spring Data를 쓰는 건 정상).</li>
+        <li>Service/Controller 테스트 미작성 — 추가 시 <code class="font-mono">ExcelJobSearchQuery</code> 기준으로 작성(<code class="font-mono">testing.md</code>).</li>
+        <li>status/날짜 필터가 생기면 <code class="font-mono">ExcelJobSearchQuery</code> 에 필드만 추가하면 됨.</li>
+        <li>커밋하지 않음 — 사용자 검토 후 별도 진행.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

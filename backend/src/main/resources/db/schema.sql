@@ -7,7 +7,7 @@ create table if not exists orders
     amount       integer     not null,
     status       varchar(10) not null,
     order_date   timestamp   not null
-    );
+);
 
 create table if not exists excel_export_jobs
 (
@@ -16,7 +16,6 @@ create table if not exists excel_export_jobs
     started_at      timestamp,
     ended_at        timestamp,
     status          varchar(10) not null,
-    file_path       varchar(200)
-    );
-
-create index idx_requested_at on excel_export_jobs (requested_at);
+    file_path       varchar(200),
+    index idx_requested_at (requested_at)
+);

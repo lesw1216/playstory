@@ -1,0 +1,117 @@
+openapi: 3.0.3
+info:
+  title: PlayStory API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+paths:
+  /api/excel-jobs:
+    get:
+      summary: 엑셀 생성 job 목록 조회 (최신순)
+      tags:
+        - ExcelJob
+      parameters:
+        - name: page
+          in: query
+          description: 페이지 번호 (0부터)
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 0
+        - name: size
+          in: query
+          description: 페이지 크기
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      result:
+                        $ref: '#/components/schemas/ExcelJobPageResponse'
+        '500':
+          description: 서버 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    BaseResponse:
+      type: object
+      properties:
+        isSuccess:
+          type: boolean
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+
+    ExcelJobResponse:
+      type: object
+      properties:
+        jobId:
+          type: integer
+          format: int32
+        status:
+          type: string
+          enum: [PENDING, PROCESSING, DONE, FAILED]
+        requestedAt:
+          type: string
+          format: date-time
+        startedAt:
+          type: string
+          format: date-time
+          nullable: true
+        endedAt:
+          type: string
+          format: date-time
+          nullable: true
+        filePath:
+          type: string
+          nullable: true
+
+    ExcelJobPageResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExcelJobResponse'
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        last:
+          type: boolean
+
+    ErrorResponse:
+      type: object
+      properties:
+        isSuccess:
+          type: boolean
+          example: false
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
