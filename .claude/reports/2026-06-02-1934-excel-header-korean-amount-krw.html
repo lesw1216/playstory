@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>엑셀 출력 — 헤더 한글화 + 결제금액 원화 표시</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"',
+                   '"Apple SD Gothic Neo"', '"Malgun Gothic"', 'system-ui', 'sans-serif'],
+            mono: ['ui-monospace', '"SF Mono"', 'Menlo', 'Consolas', 'monospace'],
+          },
+          colors: {
+            canvas: '#fafafa', card: '#ffffff', ink: '#1f2328', muted: '#656d76',
+            link: '#0969da', line: '#d0d7de', ok: '#1a7f37', warn: '#9a6700',
+            danger: '#cf222e', codebg: '#f6f8fa',
+            'd-canvas': '#0d1117', 'd-card': '#161b22', 'd-ink': '#e6edf3',
+            'd-muted': '#8b949e', 'd-link': '#58a6ff', 'd-line': '#30363d',
+          },
+        },
+      },
+    }
+  </script>
+</head>
+<body class="bg-canvas text-ink font-sans dark:bg-d-canvas dark:text-d-ink">
+  <main class="max-w-[880px] mx-auto px-8 py-12">
+
+    <header class="mb-6">
+      <h1 class="text-[28px] font-semibold">엑셀 출력 — 헤더 한글화 + 결제금액 원화 표시</h1>
+      <div class="font-mono text-sm text-muted dark:text-d-muted">2026-06-02 19:34</div>
+      <p class="text-muted dark:text-d-muted mt-2">
+        .xlsx 헤더를 DB 컬럼명에서 한글로 바꾸고, 결제금액을 원화 단위로 표시되도록 셀 서식을 적용했다.
+      </p>
+    </header>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">작업 요청 요약</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>엑셀 헤더가 컬럼명(<code class="font-mono">id, user_name, ...</code>)으로 저장되던 것을 한글로 변경.</li>
+        <li>amount(결제금액)를 한화(원) 단위로 표시되게 저장.</li>
+        <li>현재 브랜치 <code class="font-mono">feat/excel-generation</code> 미커밋 작업에 이어서 — 커밋하지 않음.</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">변경 파일</h2>
+      <table class="w-full border-collapse text-sm">
+        <tbody>
+          <tr>
+            <td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">api/exceljob/excel/OrderExcelWriter.java</code></td>
+            <td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-warn border-warn">~</span></td>
+            <td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top">헤더 한글화 + 결제금액 셀 서식(원화)</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">변경 내용</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><strong>헤더</strong>: 주문번호 / 주문자 / 상품명 / 카테고리 / 결제금액 / 주문상태 / 주문일시</li>
+        <li><strong>결제금액</strong>: 값은 <em>숫자형 유지</em>, 표시만 원화. <code class="font-mono">CellStyle</code> dataFormat <code class="font-mono">#,##0"원"</code> → <code class="font-mono">240,959원</code>. Excel에서 합계·정렬 가능.</li>
+        <li>SXSSF 특성상 스타일은 <code class="font-mono">write()</code> 에서 1개만 생성해 전 행이 재사용(행마다 생성 금지).</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">검증</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">./gradlew compileJava</code> → <span class="text-ok font-semibold">BUILD SUCCESSFUL</span>.</li>
+        <li>런타임(백엔드 재기동 + MySQL/seed): POST로 생성 → 엑셀 열어 헤더 한글·결제금액 <code class="font-mono">…원</code> 표시 확인(사용자).</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">비고</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>헤더 한글 라벨은 제안값 — 다른 표현 원하면 조정 가능.</li>
+        <li>API/스키마 변경 없음(엑셀 내부 표현만). openapi·테스트 영향 없음.</li>
+        <li>커밋하지 않음.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

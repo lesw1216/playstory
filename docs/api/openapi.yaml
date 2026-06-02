@@ -45,6 +45,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: 엑셀 생성 job 요청 (비동기)
+      description: PENDING job을 생성해 즉시 응답하고, 실제 엑셀 생성은 백그라운드에서 처리한다.
+      tags:
+        - ExcelJob
+      responses:
+        '200':
+          description: 생성 성공 (job_id·초기 상태 즉시 반환)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      result:
+                        $ref: '#/components/schemas/ExcelJobResponse'
+        '500':
+          description: 서버 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
     BaseResponse:

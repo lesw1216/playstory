@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { createExcelJob, fetchExcelJobs } from '@/api/excelJob'
 import type { ExcelJob } from '@/types/excelJob'
 
 export const PAGE_SIZE = 10
+export const POLLING_INTERVAL_MS = 2000
 
 export const useExcelJobStore = defineStore('excelJob', () => {
   const jobs = ref<ExcelJob[]>([])
@@ -13,6 +14,10 @@ export const useExcelJobStore = defineStore('excelJob', () => {
   const last = ref(true)
   const loading = ref(false)
   const error = ref<string | null>(null)
+
+  const hasOngoing = computed(() =>
+    jobs.value.some((job) => job.status === 'PENDING' || job.status === 'PROCESSING'),
+  )
 
   async function loadJobs(targetPage = 0): Promise<void> {
     loading.value = true
@@ -44,5 +49,16 @@ export const useExcelJobStore = defineStore('excelJob', () => {
     }
   }
 
-  return { jobs, page, totalPages, totalElements, last, loading, error, loadJobs, requestExcel }
+  return {
+    jobs,
+    page,
+    totalPages,
+    totalElements,
+    last,
+    loading,
+    error,
+    hasOngoing,
+    loadJobs,
+    requestExcel,
+  }
 })

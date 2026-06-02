@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>프론트엔드 job 목록 polling 구현</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"',
+                   '"Apple SD Gothic Neo"', '"Malgun Gothic"', 'system-ui', 'sans-serif'],
+            mono: ['ui-monospace', '"SF Mono"', 'Menlo', 'Consolas', 'monospace'],
+          },
+          colors: {
+            canvas: '#fafafa', card: '#ffffff', ink: '#1f2328', muted: '#656d76',
+            link: '#0969da', line: '#d0d7de', ok: '#1a7f37', warn: '#9a6700',
+            danger: '#cf222e', codebg: '#f6f8fa',
+            'd-canvas': '#0d1117', 'd-card': '#161b22', 'd-ink': '#e6edf3',
+            'd-muted': '#8b949e', 'd-link': '#58a6ff', 'd-line': '#30363d',
+          },
+        },
+      },
+    }
+  </script>
+</head>
+<body class="bg-canvas text-ink font-sans dark:bg-d-canvas dark:text-d-ink">
+  <main class="max-w-[880px] mx-auto px-8 py-12">
+
+    <header class="mb-6">
+      <h1 class="text-[28px] font-semibold">프론트엔드 — job 목록 polling 구현</h1>
+      <div class="font-mono text-sm text-muted dark:text-d-muted">2026-06-02 19:06</div>
+      <p class="text-muted dark:text-d-muted mt-2">
+        진행 중(PENDING/PROCESSING) job이 있을 때만 주기 조회하고, 모두 DONE/FAILED면 자동 중지하는 polling을 추가했다.
+      </p>
+    </header>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">작업 요청 요약</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>엑셀 생성 비동기 상태 전이를 화면에 반영하기 위한 polling(설계 §4, api-and-state.md).</li>
+        <li>현재 브랜치 <code class="font-mono">feat/excel-generation</code> 의 미커밋 작업에 이어서 진행 — 커밋하지 않음.</li>
+        <li>추후 커밋은 (1)백엔드 생성 (2)docs (3)프론트 polling 으로 분리 예정.</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">변경 파일</h2>
+      <table class="w-full border-collapse text-sm">
+        <thead>
+          <tr>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">파일</th>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">유형</th>
+            <th class="text-left px-2.5 py-2 border-b border-line dark:border-d-line align-top text-muted dark:text-d-muted font-semibold">내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">stores/excelJob.ts</code></td>
+            <td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-warn border-warn">~</span></td>
+            <td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="font-mono">hasOngoing</code> computed + <code class="font-mono">POLLING_INTERVAL_MS=2000</code> 상수</td>
+          </tr>
+          <tr>
+            <td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">composables/usePolling.ts</code></td>
+            <td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-ok border-ok">+</span></td>
+            <td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top">범용 polling(start/stop, 중복 가드, onUnmounted 정리)</td>
+          </tr>
+          <tr>
+            <td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">views/JobListView.vue</code></td>
+            <td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><span class="inline-block rounded px-2 py-0.5 text-xs font-mono border text-warn border-warn">~</span></td>
+            <td class="px-2.5 py-2 border-b border-line dark:border-d-line align-top"><code class="font-mono">watch(hasOngoing)</code>→start/stop, flicker 방지 조건 재배치</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">동작</h2>
+      <pre class="bg-codebg dark:bg-d-card rounded-md p-4 overflow-x-auto text-sm font-mono">mount → loadJobs(0) → hasOngoing?
+  ├─ true  → usePolling start: 2s마다 loadJobs(현재 page)
+  │            매 응답마다 hasOngoing 재계산 → 모두 DONE/FAILED면 watch가 stop
+  └─ false → polling 미시작
+"엑셀 생성 요청" → loadJobs(0) → 새 PENDING → hasOngoing true → 시작
+언마운트 → onUnmounted(stop)</pre>
+      <ul class="list-disc pl-5 space-y-1 mt-2">
+        <li>폴링은 현재 페이지(<code class="font-mono">store.page</code>) 재조회 — 보고 있던 페이지 유지.</li>
+        <li>flicker 방지: 데이터가 있으면 갱신 중에도 테이블 유지(로딩 문구는 최초 빈 목록일 때만).</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">검증</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">npm run type-check</code> → 통과.</li>
+        <li><code class="bg-codebg dark:bg-d-card rounded px-1.5 py-0.5 text-sm font-mono">npm run lint</code> → 0 errors.</li>
+        <li>화면 육안 확인은 사용자: 생성 요청 후 PROCESSING→DONE 자동 갱신, 완료 시 Network 호출 멈춤.</li>
+      </ul>
+    </section>
+
+    <section class="bg-card dark:bg-d-card border border-line dark:border-d-line rounded-lg p-6 mb-4">
+      <h2 class="text-[20px] font-semibold mb-4">알려진 제약 · follow-up</h2>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>다운로드 버튼·상태 배지는 별도 작업. 이번은 polling만.</li>
+        <li>polling 동작 검증에는 백엔드 POST(엑셀 생성) 기동 필요.</li>
+        <li>커밋하지 않음.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

@@ -22,3 +22,6 @@ spring:
   sql:
     init:
       mode: never
+
+excel:
+  output-dir: ${EXCEL_OUTPUT_DIR:./data/excel}
