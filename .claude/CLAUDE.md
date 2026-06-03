@@ -37,9 +37,13 @@ playstory/
 | Task 기반 개발 흐름 | `@rules/task-driven-development.md` |
 | PR 생성 | `/pr` 스킬 |
 | Task 생성·진행 | `/task` 스킬 |
-| 작업 완료 보고서 스타일 | `report-style.md` (Tailwind CSS 기반 HTML) |
+| 작업 완료 보고서 | `docs/reports/*.md` (아래 참조) |
 
 마무리 스킬(`/test`, `/done`)은 작업 영역에 따라 각 서브프로젝트 `.claude/skills/` 에서 로드된다.
+
+### 작업 완료 보고서
+
+이 프로젝트의 작업 완료 보고서는 **`docs/reports/`** 에 **Markdown**(`YYYY-MM-DD-HHmm-{slug}.md`)으로 저장한다. (글로벌 기본 경로 `.claude/reports/`·HTML 양식을 덮어쓴다.)
 
 ---
 
